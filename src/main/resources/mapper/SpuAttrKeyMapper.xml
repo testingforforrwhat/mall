@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.test.mapper.SpuAttrKeyMapper">
+    <select id="getVoByAttrSearchDto" resultMap="KeyWithValueListVo">
+        select
+            b.*
+        from
+            spu_attr_key_categories a
+        join
+            spu_attr_key b
+        on
+            a.spu_attr_key_id = b.key_id
+        where
+            a.category_id = #{cateId}
+        and
+            b.key_issku = #{keyIssku}
+        and
+            b.key_ishigh = #{keyIshigh}
+    </select>
+
+    <select id="getKeyVoListBySpuId" resultMap="KeyWithValueImageVo">
+        SELECT
+            DISTINCT c.*
+        FROM
+            spu_attr_value_spus a
+        JOIN
+            spu_attr_value b
+        ON
+            a.spu_attr_value_id = b.id
+        JOIN
+            spu_attr_key c
+        ON
+            b.value_attr_key_id = c.key_id
+        WHERE
+            a.spu_id = #{spuId}
+        AND
+            c.key_issku = 1
+    </select>
+    <select id="getSearchKeyListBySpuId" resultMap="KeyWithValueImageVo">
+        SELECT
+            DISTINCT c.*
+        FROM
+            spu_attr_value_spus a
+        JOIN
+            spu_attr_value b
+        ON
+            a.spu_attr_value_id = b.id
+        JOIN
+            spu_attr_key c
+        ON
+            b.value_attr_key_id = c.key_id
+        WHERE
+            a.spu_id = #{spuId}
+        AND
+            c.key_issku = 0
+    </select>
+
+
+    <resultMap id="KeyWithValueImageVo" type="com.test.entity.vo.KeyWithValueImageVo">
+        <id property="keyId" column="key_id"/>
+        <result property="keyName" column="key_name"/>
+        <result property="keyIssku" column="key_issku"/>
+        <result property="keyIshigh" column="key_ishigh"/>
+        <result property="createtime" column="createtime"/>
+        <result property="updatetime" column="updatetime"/>
+
+        <collection property="attrValueList" ofType="com.test.entity.vo.ValueWithImageVo"
+                    select="com.test.mapper.SpuAttrValueMapper.getValueWithImageVoListByKeyId" column="key_id"/>
+    </resultMap>
+
+
+    <resultMap id="KeyWithValueListVo" type="com.test.entity.vo.KeyWithValueListVo">
+        <id property="keyId" column="key_id"/>
+        <result property="keyName" column="key_name"/>
+        <result property="keyIssku" column="key_issku"/>
+        <result property="keyIshigh" column="key_ishigh"/>
+        <result property="createtime" column="createtime"/>
+        <result property="updatetime" column="updatetime"/>
+        <collection property="spuAttrValueList" ofType="com.test.entity.SpuAttrValue"
+                    select="com.test.mapper.SpuAttrValueMapper.getValueListByKeyId" column="key_id"/>
+    </resultMap>
+
+
+
+
+</mapper>

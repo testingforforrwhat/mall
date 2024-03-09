@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.test.mapper.SpuMapper">
+    <select id="selectSpuVoBySpuId" resultMap="SpuVo">
+        select * from spu where spu_id = #{spuId}
+    </select>
+
+    <select id="selectVoListBySpuSearchDto" resultMap="SpuVo">
+        SELECT
+            a.*
+        FROM
+            spu a
+        JOIN
+            cate_spu b
+        ON
+            a.spu_id = b.spu_id
+        JOIN
+            spu_attr_value_spus c
+        ON
+            a.spu_id = c.spu_id
+        <where>
+            <if test="dto.spu_name != null and dto.spu_name.length > 0">
+                a.spu_name like '%${dto.spu_name}%'
+            </if>
+            <if test="dto.spu_title != null and dto.spu_title.length > 0">
+                and a.spu_title like '%${dto.spu_title}%'
+            </if>
+            <if test="dto.spu_status != null">
+                and a.spu_status = #{dto.spu_status}
+            </if>
+            <if test="dto.cate_id != null and dto.cate_id != 0">
+                b.cate_id = #{dto.cate_id}
+            </if>
+            <if test="dto.values.size > 0">
+                and c.spu_attr_value_id IN
+                <foreach collection="dto.values" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+            limit #{dto.start},#{dto.length}
+    </select>
+
+    <resultMap id="SpuVo" type="com.test.entity.vo.SpuVo">
+        <id property="spuId" column="spu_id"/>
+        <result property="spuName" column="spu_name"/>
+        <result property="spuTitle" column="spu_title"/>
+        <result property="spuIntroduction" column="spu_introduction"/>
+        <result property="spuUnit" column="spu_unit"/>
+        <result property="spuSketchtype" column="spu_sketchtype"/>
+        <result property="spuSketch" column="spu_ketch"/>
+        <result property="spuSpecs" column="spu_specs"/>
+        <result property="spuSkutype" column="spu_skutype"/>
+        <result property="spuStatus" column="spu_status"/>
+        <result property="createtime" column="createtime"/>
+        <result property="updatetime" column="updatetime"/>
+        <result property="spuBrandId" column="spu_brand_id"/>
+
+        <!--根据商品所属品牌id 查询到品牌信息-->
+        <association property="brand" javaType="com.test.entity.Brand"
+                     select="com.test.mapper.BrandMapper.selectById" column="spu_brand_id"/>
+
+        <!--根据商品spuid 查询到 分类列表-->
+        <collection property="categoryList" ofType="com.test.entity.vo.CategoryVo"
+                    select="com.test.mapper.CategoryMapper.selectVoListBySpuId" column="spu_id"/>
+
+
+        <!--查询到当前商品Spu拥有的sku列表-->
+        <collection property="skuList" ofType="com.test.entity.Sku"
+                    select="com.test.mapper.SkuMapper.selectListBySpuId" column="spu_id"/>
+
+        <!--查询到带有属性值列表的规格属性键列表-->
+        <collection property="attrKeyList" ofType="com.test.entity.vo.KeyWithValueImageVo"
+                    select="com.test.mapper.SpuAttrKeyMapper.getKeyVoListBySpuId" column="spu_id"/>
+
+        <!--查询到带有属性值列表的筛选属性键列表-->
+        <collection property="searchList" ofType="com.test.entity.vo.KeyWithValueImageVo"
+                    select="com.test.mapper.SpuAttrKeyMapper.getSearchKeyListBySpuId" column="spu_id"/>
+
+    </resultMap>
+</mapper>

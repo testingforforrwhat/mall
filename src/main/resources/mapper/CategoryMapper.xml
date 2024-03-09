@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.test.mapper.CategoryMapper">
+
+    <select id="selectVoListByCateId" resultMap="CategoryVo">
+        SELECT * FROM category WHERE cate_parentid = #{pid}
+    </select>
+
+    <select id="selectVoByCateId" resultType="com.test.entity.vo.CategoryVo">
+        select * from category where cate_id = #{cateId}
+    </select>
+
+    <select id="selectVoListBySpuId" resultType="com.test.entity.vo.CategoryVo">
+        select
+            b.*
+        from
+            cate_spu a
+        join
+            category b
+        on
+            a.cate_id = b.cate_id
+        where
+            a.spu_id = #{spuId}
+    </select>
+
+
+    <resultMap id="CategoryVo" type="com.test.entity.vo.CategoryVo">
+        <id property="cateId" column="cate_id" />
+        <result property="cateName" column="cate_name"/>
+        <result property="cateSort" column="cate_sort"/>
+        <result property="createtime" column="createtime"/>
+        <result property="updatetime" column="updatetime"/>
+        <result property="cateChannel" column="cate_channel"/>
+        <result property="cateParentid" column="cate_parentid"/>
+
+        <collection property="children" ofType="com.test.entity.vo.CategoryVo"
+                    select="com.test.mapper.CategoryMapper.selectVoListByCateId"
+                    column="cate_id"/>
+    </resultMap>
+</mapper>

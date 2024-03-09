@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.test.mapper.SpuAttrValueMapper">
+    <select id="getValueListByKeyId" resultType="com.test.entity.SpuAttrValue">
+        select * from spu_attr_value where value_attr_key_id = #{keyId}
+    </select>
+    
+    
+    <select id="getValueWithImageVoListByKeyId" resultMap="ValueWithImageVo">
+        select * from spu_attr_value where value_attr_key_id = #{keyId}
+    </select>
+
+    <select id="getValueImageByValueId" resultType="java.lang.String">
+        select distinct spu_attr_imgs from spu_attr_value_spus where spu_attr_value_id = #{valueId}
+    </select>
+
+    <resultMap id="ValueWithImageVo" type="com.test.entity.vo.ValueWithImageVo">
+        <!--这部分是属性值的基本信息-->
+        <id property="value_id" column="id"/>
+        <result property="value_name" column="value_name"/>
+        <result property="createtime" column="createtime"/>
+        <result property="updatetime" column="updatetime"/>
+        <result property="key_id" column="value_attr_key_id"/>
+
+        <!--还有相册信息没有查询到-->
+        <association property="value_images" javaType="java.lang.String"
+                     select="com.test.mapper.SpuAttrValueMapper.getValueImageByValueId" column="id"/>
+    </resultMap>
+</mapper>
